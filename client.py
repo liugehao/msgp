@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
 
-host = 'localhost'
+host = '192.168.14.53'
 port = 10006
 
 import socket, sys
@@ -22,7 +22,7 @@ def senddata(data):
         sys.stdout.write("Wrote %d bytes \r" % byteswritten)
         sys.stdout.flush()
         print "Wrote %d bytes \r" % byteswritten
-    #s.shutdown(1)
+    s.shutdown(1)
     
     print "all data sent."
     while 1:
@@ -36,4 +36,7 @@ def senddata(data):
 
 while 1:
     data = raw_input("cmd:")
+    if data in ['exit', 'quit']:
+        s.close()
+        exit(0)
     senddata(data)
