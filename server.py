@@ -4,10 +4,22 @@ host ='0.0.0.0'
 port = 10006
 
 import socket, traceback, os, time
+
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 s.bind((host, port))
 s.listen(5)
+
+def log():
+    import logging
+    logger = logging.getLogger()
+    hdlr = logging.FileHandler('logfile')
+    formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+    hdlr.setFormatter(formatter)
+    logger.addHandler(hdlr)
+    logger.setLevel(logging.NOTSET)
+    return logger
+logger = log()
 
 while 1:
     try:
@@ -24,6 +36,7 @@ while 1:
 
         if clientaddr[0] != projs[0].replace("\n",""):
             clientsock.sendall('拒绝此IP连接 end')
+            logger.warn('拒绝此IP连接:%s' % clientaddr[0])
             continue
         print "got connection from ",clientsock.getpeername()
         while 1:
@@ -35,11 +48,13 @@ while 1:
                 writebashfile = open('/tmp/gitpull','w')
                 writebashfile.write("cd %s\ngit pull" % data)
                 writebashfile.close()
-                time.sleep(5)
-                result = os.popen("bash /tmp/gitpull").read() + 'end'
+                result = os.popen("bash /tmp/gitpull").read() + '<br>end'
+                logger.info('pull success:%s' % data)
                 clientsock.sendall(result)
+                
             else:
-                clientsock.sendall('没有代码库 end')
+                clientsock.sendall('没有代码库 <br>end')
+                logger.warn('没有代码库:%s' % data)
                     
     except (KeyboardInterrupt, SystemExit):
         raise

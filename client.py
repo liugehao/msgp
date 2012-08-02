@@ -21,8 +21,7 @@ def senddata(data):
         byteswritten += s.send(data[startpos:endpos])
         sys.stdout.write("Wrote %d bytes \r" % byteswritten)
         sys.stdout.flush()
-        print "Wrote %d bytes \r" % byteswritten
-    s.shutdown(1)
+    #s.shutdown(1)
     
     print "all data sent."
     while 1:
