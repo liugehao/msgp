@@ -9,7 +9,6 @@ import socket, sys
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((host, port))
 
-data = "x" * 104857
 
 
 def senddata(data):

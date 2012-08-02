@@ -18,7 +18,7 @@ import re
 import sys, socket
 reload(sys)
 sys.setdefaultencoding('utf-8')
-import time, datetime
+import time, datetime, logging
     
 class Application(tornado.web.Application):
     def __init__(self):
@@ -30,11 +30,18 @@ class Application(tornado.web.Application):
             debug=True,
         )
         tornado.web.Application.__init__(self, handlers, **settings)
+        self.logger = logging.getLogger()
+        hdlr = logging.FileHandler('./tor.log')
+        formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+        hdlr.setFormatter(formatter)
+        self.logger.addHandler(hdlr)
+        self.logger.setLevel(logging.NOTSET)
         #print 'rpc'
         #self.rpc = ServerProxy("http://localhost:8080")    
         #self.db = None
 
 
+    
 
 class IndexHandler(tornado.web.RequestHandler):
     #@tornado.web.authenticated
@@ -55,23 +62,24 @@ class IndexHandler(tornado.web.RequestHandler):
             self.write("""<hr>""")
 
     def post(self):
+        logger = self.application.logger
         host = self.get_argument('host','192.168.14.53')
         port = 10006
         data = self.get_argument('path','/home/l/autogit')
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.connect((host, port))
-
+        
         byteswritten = 0 
         while byteswritten < len(data):
             startpos = byteswritten
             endpos = min(byteswritten + 1024, len(data))
             byteswritten += s.send(data[startpos:endpos])
             self.write(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S ："))
-            self.write("向服务器 %s 目录 %s 发送pull命令 <br>" % (data, host))
+            self.write("向服务器 %s 目录 %s 发送pull命令 <br>" % (host, data ))
+            logger.info("向服务器 %s 目录 %s 发送pull命令" % (host, data ))
             self.flush()
-
+            
         self.write(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S ：更新命令已发出。<br>"))
-        self.write( "")
         self.flush()
         while 1:
             buf = s.recv(1024)
@@ -79,6 +87,7 @@ class IndexHandler(tornado.web.RequestHandler):
                 break
             self.write(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S ：服务器返回信息：<br>"))
             self.write(buf.replace("\n","<br>"))
+            logger.info("%s 服务器 %s 返回信息：%s" % (host, data, buf))
             if buf.endswith('end'):
                 break
 

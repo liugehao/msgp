@@ -13,7 +13,7 @@ s.listen(5)
 def log():
     import logging
     logger = logging.getLogger()
-    hdlr = logging.FileHandler('logfile')
+    hdlr = logging.FileHandler('server.log')
     formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
     hdlr.setFormatter(formatter)
     logger.addHandler(hdlr)
@@ -37,6 +37,12 @@ while 1:
         if clientaddr[0] != projs[0].replace("\n",""):
             clientsock.sendall('拒绝此IP连接 end')
             logger.warn('拒绝此IP连接:%s' % clientaddr[0])
+            try:
+                clientsock.close()
+            except KeyboardInterrupt:
+                raise
+            except:
+                traceback.print_exec()
             continue
         print "got connection from ",clientsock.getpeername()
         while 1:
@@ -48,23 +54,23 @@ while 1:
                 writebashfile = open('/tmp/gitpull','w')
                 writebashfile.write("cd %s\ngit pull" % data)
                 writebashfile.close()
-                result = os.popen("bash /tmp/gitpull").read() + '<br>end'
+                result = os.popen("bash /tmp/gitpull").read() + "\nend"
                 logger.info('pull success:%s' % data)
                 clientsock.sendall(result)
                 
             else:
-                clientsock.sendall('没有代码库 <br>end')
+                clientsock.sendall("没有代码库 \nend")
                 logger.warn('没有代码库:%s' % data)
                     
     except (KeyboardInterrupt, SystemExit):
         raise
     except:
         traceback.print_exec()
-    """
+
     try:
         clientsock.close()
     except KeyboardInterrupt:
         raise
     except:
         traceback.print_exec()
-    """
+
