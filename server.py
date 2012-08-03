@@ -8,7 +8,7 @@ import socket, traceback, os, time
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 s.bind((host, port))
-s.listen(5)
+s.listen(1)
 
 def log():
     import logging
@@ -36,13 +36,13 @@ while 1:
 
         if clientaddr[0] != projs[0].replace("\n",""):
             clientsock.sendall('拒绝此IP连接 end')
-            logger.warn('拒绝此IP连接:%s' % clientaddr[0])
             try:
                 clientsock.close()
             except KeyboardInterrupt:
                 raise
             except:
                 traceback.print_exec()
+            logger.warn('拒绝此IP连接:%s' % clientaddr[0])
             continue
         print "got connection from ",clientsock.getpeername()
         while 1:
@@ -51,6 +51,7 @@ while 1:
                 break
             print data
             if data in [x.replace("\n", "") for x in projs]:
+                #with open('/tmp/gitpull','w') as writebashfile: writebashfile.write("cd %s\ngit pull" % data)
                 writebashfile = open('/tmp/gitpull','w')
                 writebashfile.write("cd %s\ngit pull" % data)
                 writebashfile.close()

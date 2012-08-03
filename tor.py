@@ -81,13 +81,18 @@ class IndexHandler(tornado.web.RequestHandler):
             
         self.write(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S ：更新命令已发出。<br>"))
         self.flush()
+        
+        result = False
         while 1:
+            if not result:
+                self.write(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S ：服务器返回信息：<br>"))
+                logger.info("%s 服务器 %s 返回信息：" % (host, data))
+                result = True
             buf = s.recv(1024)
             if not len(buf):
                 break
-            self.write(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S ：服务器返回信息：<br>"))
             self.write(buf.replace("\n","<br>"))
-            logger.info("%s 服务器 %s 返回信息：%s" % (host, data, buf))
+            logger.info(buf)
             if buf.endswith('end'):
                 break
 
