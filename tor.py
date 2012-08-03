@@ -53,6 +53,7 @@ class IndexHandler(tornado.web.RequestHandler):
             f.close()
         except:
             self.write(u"读取 tor.config 出错！")
+            self.finish()
         self.write("""<form id=form1 method=post><input type=hidden id=host name=host><input type=hidden id=path name=path></form><script>function post(host,path){
         if(!confirm('确定要pull '+host +' '+path+'?')){return;};document.getElementById('path').value=path;document.getElementById('host').value=host;document.getElementById('form1').submit();}</script>""")
         for host, paths in gitpullservers:
