@@ -52,10 +52,11 @@ while 1:
             print data
             if data in [x.replace("\n", "") for x in projs]:
                 #with open('/tmp/gitpull','w') as writebashfile: writebashfile.write("cd %s\ngit pull" % data)
-                writebashfile = open('/tmp/gitpull','w')
-                writebashfile.write("cd %s\ngit pull" % data)
-                writebashfile.close()
-                result = os.popen("bash /tmp/gitpull").read() + "\nend"
+                #writebashfile = open('/tmp/gitpull','w')
+                #writebashfile.write("cd %s\ngit pull" % data)
+                #writebashfile.close()
+                #result = os.popen("bash /tmp/gitpull").read() + "\nend"
+                result = os.popen("cd %s;git pull" % data).read() + "\nend"
                 logger.info('pull success:%s' % data)
                 clientsock.sendall(result)
                 
